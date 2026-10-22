@@ -1,15 +1,15 @@
 services:
   web:
     build: .
-      ports:
-        - "10149:10149"
-      volumes:
-        - ./katalog.db:/app/katalog.db
-      environment:
-        - FLASK_ENV=production
+    ports:
+      - "10149:10149"
+    volumes:
+      - ./katalog.db:/app/katalog.db
+    environment:
+      - FLASK_ENV=production
    
-      adminer:
-        image: adminer
-        ports:
-          - "10150:8080"
+  adminer:
+    image: adminer
+    ports:
+      - "10150:8080"
 
