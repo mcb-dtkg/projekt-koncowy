@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Katalog Oprogramowania</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background-color: #f4f4f4; }
+        h1 { color: #333; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; }
+        th, td { padding: 10px; border: 1px solid #ddd; text-align: left; }
+        th { background-color: #007bff; color: white; }
+        .form-container { background: white; padding: 20px; margin-bottom: 20px; border-radius: 5px; }
+        input, select { padding: 8px; margin: 5px; width: 200px; }
+        button { padding: 8px 15px; background-color: #28a745; color: white; border: none; cursor: pointer; }
+        button:hover { background-color: #218838; }
+        .search-box { margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+
+    <h1>Katalog Oprogramowania</h1>
+
+    <div class="form-container">
+        <h3>Dodaj nowy program</h3>
+        <input type="text" id="name" placeholder="Nazwa (np. Python)" required>
+        <input type="text" id="version" placeholder="Wersja (np. 3.11)">
+        <input type="text" id="description" placeholder="Opis">
+        <input type="text" id="category" placeholder="Kategoria">
+        <button onclick="addProgram()">Dodaj</button>
+    </div>
+
+    <div class="search-box">
+        <input type="text" id="search" placeholder="Szukaj po nazwie..." onkeyup="loadPrograms()">
+    </div>
+
+    <table id="programsTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nazwa</th>
+                <th>Wersja</th>
+                <th>Opis</th>
+                <th>Kategoria</th>
+                <th>Dostępny?</th>
+                <th>Akcja</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <script>
+        async function loadPrograms() {
+            const search = document.getElementById('search').value;
+            const response = await fetch('/programs?search=' + search);
+            const data = await response.json();
+            const tbody = document.querySelector('#programsTable tbody');
+            tbody.innerHTML = '';
+            
+            data.forEach(p => {
+                const row = `<tr>
+                    <td>${p.id}</td>
+                    <td>${p.name}</td>
+                    <td>${p.version || ''}</td>
+                    <td>${p.description || ''}</td>
+                    <td>${p.category || ''}</td>
+                    <td>${p.available ? '✅ Tak' : '❌ Nie'}</td>
+                    <td><button onclick="toggle(${p.id}, ${p.available})" style="background-color: #ffc107; color: black;">Zmień</button></td>
+                </tr>`;
+                tbody.innerHTML += row;
+            });
+        }
+
+        async function addProgram() {
+            const name = document.getElementById('name').value;
+            const version = document.getElementById('version').value;
+            const description = document.getElementById('description').value;
+            const category = document.getElementById('category').value;
+
+            if (!name) { alert('Podaj nazwę programu!'); return; }
+
+            await fetch('/programs', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, version, description, category, available: 1 })
+            });
+
+            document.getElementById('name').value = '';
+            document.getElementById('version').value = '';
+            document.getElementById('description').value = '';
+            document.getElementById('category').value = '';
+            loadPrograms();
+        }
+
+        async function toggle(id, currentStatus) {
+            await fetch('/programs/' + id, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ available: currentStatus ? 0 : 1 })
+            });
+            loadPrograms();
+        }
+
+        loadPrograms();
+    </script>
+</body>
+</html>

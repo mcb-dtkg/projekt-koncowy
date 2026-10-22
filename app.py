@@ -1,9 +1,13 @@
 import os
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 import sqlite3
 
 app = Flask(__name__)
 DB_NAME = os.environ.get('DB_PATH', 'katalog.db')
+
+@app.route('/')
+def index():
+    return send_from_directory('.', 'index.html')
 
 def init_db():
     conn = sqlite3.connect(DB_NAME)

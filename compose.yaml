@@ -2,17 +2,21 @@ services:
   web:
     build: .
     ports:
-      - "10149:10149"
+      - "10151:10149"
     volumes:
       - db_data:/app/data
     environment:
       - FLASK_ENV=production
       - DB_PATH=/app/data/katalog.db
 
-  adminer:
-    image: adminer
+  sqlite-web:
+    image: coleifer/sqlite-web
     ports:
-      - "10150:8080"
+      - "10149:8080"
+    volumes:
+      - db_data:/app/data
+    environment:
+      - SQLITE_DATABASE=/app/data/katalog.db
 
 volumes:
   db_data:
